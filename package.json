@@ -1,0 +1,19 @@
+{
+  "name": "music-library",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "elie-francis",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "dependencies": {
+    "mongoose": "^8.2.0",
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2"
+  }
+}
