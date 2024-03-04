@@ -5,11 +5,11 @@ const Schema = mongoose.Schema;
 const songSchema = new Schema({
     name: String,
     singer: String,
-    category: {
+    categoryID: {
         type: Schema.Types.ObjectId,
         ref: 'Category'
     },
-    album: {
+    albumID: {
         type: Schema.Types.ObjectId,
         ref: 'Album'
     }

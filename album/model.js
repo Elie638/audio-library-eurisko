@@ -5,7 +5,10 @@ const Schema = mongoose.Schema;
 const albumSchema = new Schema({
     name: String,
     description: String,
-    showNbTracks: Boolean,
+    showNbTracks: {
+        type: Boolean,
+        default: false
+    },
     lastSongAddedAt: String
 }, { timestamps: true });
 
