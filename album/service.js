@@ -1,84 +1,58 @@
+const song = require('../song/service');
 const Album = require('./model');
 
-exports.createAlbum = req => {
-    const name = req.body.name;
-    const description = req.body.description;
-    const createdAt = new Date().toISOString();
+exports.createAlbum = async req => {
+    const name = req.name;
+    const description = req.description;
     const album = new Album({
         name: name,
         description: description,
         showNbTracks: false,
-        createdAt: createdAt,
-        updatedAt: createdAt 
     });
-    album
-        .save()
-        .then(() => {
-            console.log('Created Album');
-        })
-        .catch(err => {
-            console.log(err);
-        });
+    await album.save()
+        console.log('Created Album');
+        return album;
 };
 
-exports.updateAlbum = req => {
-    const name = req.body.name;
-    const description = req.body.description;
-    const showNbTracks = req.body.showNbTracks;
-    const updatedAt = new Date().toISOString();
-    const album = new Album({
-        name: name,
-        description: description,
-        showNbTracks: showNbTracks,
-        updatedAt: updatedAt 
-    });
-    album
-        .save()
-        .then(() => {
-            console.log('Updated Album');
-        })
-        .catch(err => {
-            console.log(err);
-        });
+exports.updateAlbum = async (updated, albumID) => {
+    if(!Album.findOne(albumID)) {
+        const error = new Error('ID does not match to album');
+        error.statusCode = 404;
+        throw error;
+    }
+    const req = await Album.findByIdAndUpdate(albumID,
+        { $set: updated });
+    console.log('Updated Album');
+    return updatedAlbum;
 };
 
-exports.trackAdded = req => {
-    const albumID = req.body.albumID
-    const lastSongAddedAt = new Date().toISOString();
-    const album = new Album({
-        _id: albumID,
-        lastSongAddedAt: lastSongAddedAt
-    });
-    album
-        .save()
-        .then(() => {
-            console.log('Updated Album');
-        })
-        .catch(err => {
-            console.log(err);
-        });
+exports.trackAdded = async albumID => {
+    await Album.findByIdAndUpdate(albumID,
+        { $set: { lastSongAddedAt: new Date().toISOString() } });
+    console.log('Updated Album');
 };
 
 
-exports.deleteAlbum = req => {
-    const albumID = req.body.id;
-    Album.findByIdAndDelete(albumID)
-        .then(() => {
-            console.log('Album Deleted');
-        })
-        .catch(err => {
-            console.log(err);
-        })
+exports.deleteAlbum = async req => {
+    const albumID = req.id;
+    if(!Album.findOne(albumID)) {
+        const error = new Error('ID does not match to album');
+        error.statusCode = 404;
+        throw error;
+    }
+    await song.deleteAllSongsInAlbum(albumID);
+    await Album.findByIdAndDelete(albumID);
+    console.log('Album Deleted');
 }
 
-exports.readAlbum = (req, res) => {
-    const albumID = req.body.id;
-    Album.findById(albumID)
-        .then(album => {
-            console.log(album);
-        })
-        .catch(err => {
-            console.log(err);
-        })
+exports.readAlbum = async req => {
+    const albumID = req.id;
+    const album = await Album.findById(albumID)
+    return album;
+}
+
+exports.readAllAlbum = async () => {
+    const albums = await Album.find();
+    return albums;
 }
 

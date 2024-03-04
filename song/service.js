@@ -1,35 +1,46 @@
 const Song = require('./model');
-const trackAdded = require('../album/service').trackAdded();
+const album = require('../album/service');
+const { findCategory } = require('../category/service');
 
-exports.createSong = req => {
-    const name = req.body.name;
-    const singer = req.body.singer;
-    const categoryID = req.body.categoryID;
-    const albumID = req.body.albumID;
+exports.createSong = async req => {
+    const name = req.name;
+    const singer = req.singer;
+    const categoryID = req.categoryID;
+    const albumID = req.albumID;
+    if(!findCategory(categoryID)) {
+        const error = new Error('ID does not match to category');
+        error.statusCode = 404;
+        throw error;
+    }
+    if(!album.readAlbum(albumID)) {
+        const error = new Error('ID does not match to album');
+        error.statusCode = 404;
+        throw error;
+    }
     const song = new Song({
         name: name,
         singer: singer,
-        category: categoryID,
-        album: albumID
+        categoryID: categoryID,
+        albumID: albumID
     });
-    song
-        .save()
-        .then(() => {
-            trackAdded(albumID);
-            console.log('Added Song to Album');
-        })
-        .catch(err => {
-            console.log(err);
-        });
+    await song.save()
+    album.trackAdded(albumID);
+    console.log('Added Song to Album');
+    return song;
 };
 
-exports.deleteSong = req => {
-    const songID = req.body.id;
-    song.findByIdAndDelete(songID)
-        .then(() => {
-            console.log('Song Deleted');
-        })
-        .catch(err => {
-            console.log(err);
-        })
+exports.deleteSong = async req => {
+    const songID = req.id;
+    if(!Song.findOne(songID)) {
+        const error = new Error('ID does not match to spng');
+        error.statusCode = 404;
+        throw error;
+    }
+    await Song.findByIdAndDelete(songID);
+    console.log('Song Deleted');
+}
+
+exports.deleteAllSongsInAlbum = async albumID => {
+    await Song.deleteMany({ albumID: albumID });
+    console.log('Deleted all songs from the album');
 }

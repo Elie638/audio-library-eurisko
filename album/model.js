@@ -9,7 +9,15 @@ const albumSchema = new Schema({
         type: Boolean,
         default: false
     },
-    lastSongAddedAt: String
+    lastSongAddedAt: String,
+    createdBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    updatedBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Album', albumSchema);

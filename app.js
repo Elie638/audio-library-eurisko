@@ -10,29 +10,27 @@ const category = require('./category/service');
 
 const app = express();
 
-const testCase = () => {
-    category.createCategory({name: "Pop", description: "This is a description"});
-    category.createCategory({name: "Jazz", description: "This is a description"});
-    album.createAlbum({name: "My album", description: "This is a description"});
-    song.createSong({name: "song1", singer: "singer1", categoryID: category.find({name: "Pop"}).id, albumID: album.find({name: "My album"}).id});
-    song.createSong({name: "song2", singer: "singer1", categoryID: category.find({name: "Pop"}).id, albumID: album.find({name: "My album"}).id});
-    song.createSong({name: "song3", singer: "singer1", categoryID: category.find({name: "Pop"}).id, albumID: album.find({name: "My album"}).id});
-    album.createAlbum({name: "Temp album", description: "This is a description"});
-    song.createSong({name: "song1", singer: "singer1", categoryID: category.find({name: "Jazz"}).id, albumID: album.find({name: "Temp album"}).id});
-    song.createSong({name: "song2", singer: "singer1", categoryID: category.find({name: "Jazz"}).id, albumID: album.find({name: "Temp album"}).id});
-    song.createSong({name: "song3", singer: "singer1", categoryID: category.find({name: "Jazz"}).id, albumID: album.find({name: "Temp album"}).id});
-    //updates are supposed to happen automatically
-    album.deleteAlbum({albumID: album.find({"name": "Temp album"}).id});
-    song.deleteSong({songID: song.find({name: "song3", albumID: album.find({name: "Temp album"})}).id});
+const testCase = async () => {
+    const pop = await category.createCategory({name: "Pop", description: "This is a description"})
+    const jazz = await category.createCategory({name: "Jazz", description: "This is a description"});
+    const myalbum = await album.createAlbum({name: "My album", description: "This is a description"});
+    await song.createSong({name: "song1", singer: "singer1", categoryID: pop._id, albumID: myalbum._id});
+    await song.createSong({name: "song2", singer: "singer1", categoryID: pop._id, albumID: myalbum._id});
+    const song = await song.createSong({name: "song3", singer: "singer1", categoryID: pop._id, albumID: myalbum._id});
+    const tempalbum = await album.createAlbum({name: "Temp album", description: "This is a description"});
+    await song.createSong({name: "song1", singer: "singer1", categoryID: jazz._id, albumID: tempalbum._id});
+    await song.createSong({name: "song2", singer: "singer1", categoryID: jazz._id, albumID: tempalbum._id});
+    await song.createSong({name: "song3", singer: "singer1", categoryID: jazz._id, albumID: tempalbum._id});
+    album.deleteAlbum({albumID: tempalbum._id});
+    song.deleteSong({songID: song._id});
 } 
 
 mongoose
   .connect(
-    'NO CONNETION'
+    'mongodb://localhost:27017'
   )
   .then(() => {
     console.log('Connected to the database');
-    testCase();
     app.listen(3000);
   })
   .catch(err => {

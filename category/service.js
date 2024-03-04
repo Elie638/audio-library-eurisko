@@ -1,23 +1,17 @@
 const Category = require('./model');
 
-exports.createCategory = req => {
-    const name = req.body.name;
-    const description = req.body.description;
-    const createdAt = new Date().toISOString();
+exports.createCategory = async req => {
+    const name = req.name;
+    const description = req.description;
     const category = new Category({
         name: name,
         description: description,
-        createdAt: createdAt,
-        updatedAt: createdAt 
-        //function saves both dates to the same thing at creation
-        //independent edit function could be added
     });
-    category
-        .save()
-        .then(() => {
-          console.log('Created Category');
-        })
-        .catch(err => {
-          console.log(err);
-        });
+    await category.save()
+    console.log('Created Category');
+    return category;
 };
+
+exports.findCategory = async ID => {
+  return await Category.findById(ID);
+}
